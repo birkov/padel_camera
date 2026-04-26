@@ -1,0 +1,7 @@
+# Project
+
+This is an Android app that can stream live video to youtube with overlay graphics showing padel
+match score and player names on top. This should run only on Android phone without other devices. In the beginning you will be able to get players data from one api endpoint
+and then Score will be loaded periodically from the other. API details should be in separate configuration file for easy 
+access. For testing add additional configuration parameter, so when True it will show 0 0 score and Player 1 and Player 2 names instead of
+using API.

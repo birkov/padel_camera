@@ -1,0 +1,15 @@
+  Key points
+
+  - Streaming: uses https://github.com/pedroSG94/RootEncoder (com.github.pedroSG94.RootEncoder:library:2.4.5) — handles
+  Camera2 + H.264/AAC encoding + RTMP to YouTube
+  - Score overlay: rendered as a transparent ARGB bitmap onto the video stream via ObjectFilterRender (OpenGL pipeline)
+  — same overlay appears both on-screen and in the stream
+  - Config (assets/config.json): set "test_mode": true/false, add real API URLs, adjust score_refresh_interval_seconds
+  - API shape expected: { "player1_name": "...", "player2_name": "..." } and { "player1_score": 0, "player2_score": 0 }
+  - YouTube stream key: entered by the user in the app UI at runtime
+
+  To build
+
+  1. Open the project in Android Studio — it will download Gradle wrapper and dependencies automatically
+  2. Build & run on a physical Android 8+ device (camera + RTMP don't work in emulators)
+  3. For a real match: set test_mode: false in config.json and fill in your API URLs

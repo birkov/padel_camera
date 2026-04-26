@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Padel Camera</string>
+    <string name="stream_key_hint">Enter YouTube Stream Key</string>
+    <string name="btn_start_stream">Start Stream</string>
+    <string name="btn_stop_stream">Stop Stream</string>
+    <string name="btn_switch_camera">Flip</string>
+    <string name="status_idle">Ready</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_streaming">LIVE</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="error_permissions">Camera and microphone permissions are required</string>
+    <string name="error_stream_key_empty">Please enter a YouTube stream key</string>
+    <string name="error_prepare_stream">Failed to prepare stream encoder</string>
+</resources>
