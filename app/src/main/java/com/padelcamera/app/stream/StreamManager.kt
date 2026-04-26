@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.pedro.common.ConnectChecker
-import com.pedro.encoder.input.gl.render.filters.`object`.ObjectFilterRender
+import com.pedro.encoder.input.gl.render.filters.`object`.ImageObjectFilterRender
 import com.pedro.encoder.input.sources.audio.MicrophoneSource
 import com.pedro.encoder.input.sources.video.Camera2Source
 import com.pedro.library.generic.GenericStream
@@ -32,7 +32,7 @@ class StreamManager(
         getStreamClient().setReTries(3)
     }
 
-    private val overlayFilter = ObjectFilterRender()
+    private val overlayFilter = ImageObjectFilterRender()
     private val overlayRenderer = ScoreOverlayRenderer(VIDEO_WIDTH, VIDEO_HEIGHT)
     var isPrepared = false
         private set
