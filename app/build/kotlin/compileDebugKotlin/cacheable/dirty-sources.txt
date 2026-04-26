@@ -1,0 +1,8 @@
+C:\Users\p\dev\padel_camera\app\src\main\java\com\padelcamera\app\config\AppConfig.kt
+C:\Users\p\dev\padel_camera\app\src\main\java\com\padelcamera\app\MainActivity.kt
+C:\Users\p\dev\padel_camera\app\src\main\java\com\padelcamera\app\overlay\ScoreOverlayRenderer.kt
+C:\Users\p\dev\padel_camera\app\src\main\java\com\padelcamera\app\stream\StreamManager.kt
+C:\Users\p\dev\padel_camera\app\src\main\java\com\padelcamera\app\api\ApiService.kt
+C:\Users\p\dev\padel_camera\app\src\main\java\com\padelcamera\app\api\model\ScoreData.kt
+C:\Users\p\dev\padel_camera\app\src\main\java\com\padelcamera\app\api\ApiClient.kt
+C:\Users\p\dev\padel_camera\app\src\main\java\com\padelcamera\app\api\model\PlayerData.kt

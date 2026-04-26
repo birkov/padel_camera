@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#E94560</color>
+    <color name="black">#000000</color>
+    <color name="control_bg">#CC000000</color>
+    <color name="live_red">#FF0000</color>
+    <color name="overlay_bg">#A0000000</color>
+    <color name="primary">#1A1A2E</color>
+    <color name="primary_dark">#16213E</color>
+    <color name="white">#FFFFFF</color>
+    <string name="app_name">Padel Camera</string>
+    <string name="btn_start_stream">Start Stream</string>
+    <string name="btn_stop_stream">Stop Stream</string>
+    <string name="btn_switch_camera">Flip</string>
+    <string name="error_permissions">Camera and microphone permissions are required</string>
+    <string name="error_prepare_stream">Failed to prepare stream encoder</string>
+    <string name="error_stream_key_empty">Please enter a YouTube stream key</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_idle">Ready</string>
+    <string name="status_streaming">LIVE</string>
+    <string name="stream_key_hint">Enter YouTube Stream Key</string>
+    <style name="Theme.PadelCamera" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+</resources>

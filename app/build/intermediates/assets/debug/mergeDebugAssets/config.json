@@ -1,0 +1,7 @@
+{
+  "test_mode": true,
+  "players_api_url": "https://api.example.com/padel/players",
+  "score_api_url": "https://api.example.com/padel/score",
+  "score_refresh_interval_seconds": 30,
+  "youtube_rtmp_base_url": "rtmp://a.rtmp.youtube.com/live2"
+}
