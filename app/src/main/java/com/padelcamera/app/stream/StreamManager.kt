@@ -93,7 +93,8 @@ class StreamManager(
     private fun attachOverlayFilter() {
         try {
             genericStream.getGlInterface().addFilter(overlayFilter)
-            overlayFilter.setPercent(100f, 100f, 0f, 0f)
+            overlayFilter.setScale(1f, 1f)
+            overlayFilter.setPosition(0f, 0f)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to attach overlay filter", e)
         }
