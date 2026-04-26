@@ -5,9 +5,9 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <!-- Camera preview with OpenGL for overlay filter -->
-    <com.pedro.encoder.input.gl.OpenGlView
-        android:id="@+id/openGlView"
+    <!-- Camera preview — OpenGL pipeline is handled internally by GenericStream -->
+    <SurfaceView
+        android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

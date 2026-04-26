@@ -11,7 +11,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import com.pedro.rtmp.utils.ConnectCheckerRtmp
+import com.pedro.common.ConnectChecker
 import com.padelcamera.app.api.ApiClient
 import com.padelcamera.app.api.model.PlayerData
 import com.padelcamera.app.api.model.ScoreData
@@ -23,7 +23,7 @@ import kotlinx.coroutines.*
 private const val TAG = "MainActivity"
 private const val REQUEST_PERMISSIONS = 1001
 
-class MainActivity : AppCompatActivity(), ConnectCheckerRtmp {
+class MainActivity : AppCompatActivity(), ConnectChecker {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var config: AppConfig
@@ -69,20 +69,21 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtmp {
     }
 
     private fun initCamera() {
-        streamManager = StreamManager(binding.openGlView, this)
-        streamManager.startPreview()
+        // StreamManager sets up SurfaceHolder.Callback internally — preview starts when
+        // the surface is ready, not here explicitly.
+        streamManager = StreamManager(this, binding.surfaceView, this)
 
-        // Set initial overlay before first score fetch
+        if (!streamManager.isPrepared) {
+            Toast.makeText(this, R.string.error_prepare_stream, Toast.LENGTH_LONG).show()
+            return
+        }
+
         streamManager.updateOverlay(player1Name, player2Name, score1, score2)
-
         loadInitialData()
     }
 
     private fun loadInitialData() {
-        if (config.testMode) {
-            // Use test values — already set as defaults
-            updateOverlay()
-        } else {
+        if (!config.testMode) {
             lifecycleScope.launch {
                 fetchPlayers()
                 fetchScore()
@@ -97,9 +98,7 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtmp {
             val intervalMs = config.scoreRefreshIntervalSeconds * 1_000L
             while (isActive) {
                 delay(intervalMs)
-                if (!config.testMode) {
-                    fetchScore()
-                }
+                if (!config.testMode) fetchScore()
             }
         }
     }
@@ -109,7 +108,7 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtmp {
             val data: PlayerData = ApiClient.service.getPlayers(config.playersApiUrl)
             player1Name = data.player1Name
             player2Name = data.player2Name
-            updateOverlay()
+            streamManager.updateOverlay(player1Name, player2Name, score1, score2)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch players", e)
         }
@@ -120,14 +119,10 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtmp {
             val data: ScoreData = ApiClient.service.getScore(config.scoreApiUrl)
             score1 = data.player1Score
             score2 = data.player2Score
-            updateOverlay()
+            streamManager.updateOverlay(player1Name, player2Name, score1, score2)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch score", e)
         }
-    }
-
-    private fun updateOverlay() {
-        streamManager.updateOverlay(player1Name, player2Name, score1, score2)
     }
 
     private fun startStreaming() {
@@ -138,16 +133,13 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtmp {
         }
 
         val rtmpUrl = "${config.youtubeRtmpBaseUrl}/$key"
-        val success = streamManager.startStream(rtmpUrl)
-
-        if (!success) {
+        if (!streamManager.startStream(rtmpUrl)) {
             Toast.makeText(this, R.string.error_prepare_stream, Toast.LENGTH_SHORT).show()
             return
         }
 
         binding.btnStartStop.text = getString(R.string.btn_stop_stream)
         binding.tvStatus.text = getString(R.string.status_connecting)
-        binding.tvStatus.setTextColor(ContextCompat.getColor(this, R.color.white))
         binding.etStreamKey.isEnabled = false
     }
 
@@ -160,79 +152,63 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtmp {
         binding.etStreamKey.isEnabled = true
     }
 
-    // ── ConnectCheckerRtmp ────────────────────────────────────────────────────
+    // ── ConnectChecker ────────────────────────────────────────────────────────
 
-    override fun onConnectionStartedRtmp(rtmpUrl: String) {
-        runOnUiThread {
-            binding.tvStatus.text = getString(R.string.status_connecting)
-        }
+    override fun onConnectionStarted(url: String) {
+        runOnUiThread { binding.tvStatus.text = getString(R.string.status_connecting) }
     }
 
-    override fun onConnectionSuccessRtmp() {
+    override fun onConnectionSuccess() {
         runOnUiThread {
             binding.tvStatus.text = getString(R.string.status_streaming)
             binding.tvStatus.setTextColor(ContextCompat.getColor(this, R.color.live_red))
         }
     }
 
-    override fun onConnectionFailedRtmp(reason: String) {
+    override fun onConnectionFailed(reason: String) {
         runOnUiThread {
             Toast.makeText(this, "Connection failed: $reason", Toast.LENGTH_LONG).show()
             stopStreaming()
         }
     }
 
-    override fun onNewBitrateRtmp(bitrate: Long) {
+    override fun onNewBitrate(bitrate: Long) {
         runOnUiThread {
-            val kbps = bitrate / 1000
-            binding.tvBitrate.text = "$kbps kbps"
+            binding.tvBitrate.text = "${bitrate / 1000} kbps"
             binding.tvBitrate.isVisible = true
         }
     }
 
-    override fun onDisconnectRtmp() {
+    override fun onDisconnect() {
         runOnUiThread {
             Toast.makeText(this, getString(R.string.status_disconnected), Toast.LENGTH_SHORT).show()
             stopStreaming()
         }
     }
 
-    override fun onAuthErrorRtmp() {
+    override fun onAuthError() {
         runOnUiThread {
             Toast.makeText(this, "Auth error — check your stream key", Toast.LENGTH_LONG).show()
             stopStreaming()
         }
     }
 
-    override fun onAuthSuccessRtmp() {
-        // no UI update needed
-    }
+    override fun onAuthSuccess() {}
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
-    override fun onResume() {
-        super.onResume()
-        if (::streamManager.isInitialized && !streamManager.isOnPreview) {
-            streamManager.startPreview()
-        }
-    }
-
     override fun onPause() {
         super.onPause()
-        if (::streamManager.isInitialized) {
-            if (streamManager.isStreaming) {
-                streamManager.stopStream()
-            }
-            streamManager.stopPreview()
+        if (::streamManager.isInitialized && streamManager.isStreaming) {
+            streamManager.stopStream()
+            runOnUiThread { stopStreaming() }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         scorePollingJob?.cancel()
-        if (::streamManager.isInitialized) {
-            streamManager.release()
-        }
+        if (::streamManager.isInitialized) streamManager.release()
     }
 
     override fun onRequestPermissionsResult(
@@ -252,7 +228,5 @@ class MainActivity : AppCompatActivity(), ConnectCheckerRtmp {
     private fun allPermissionsGranted() = arrayOf(
         Manifest.permission.CAMERA,
         Manifest.permission.RECORD_AUDIO
-    ).all {
-        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-    }
+    ).all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
 }

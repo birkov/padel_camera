@@ -33,7 +33,7 @@ All build commands require Android Studio or a local Android SDK. Run from the p
 The app is a single-Activity Android app (landscape-only, minSdk 26) that composes three independent concerns:
 
 **1. Streaming pipeline** (`stream/StreamManager.kt`)  
-Wraps RootEncoder's `RtmpCamera2`. The camera feed runs through an OpenGL pipeline (`OpenGlView`) that applies an `ObjectFilterRender` as a full-frame overlay. `startStream()` must be called after `startPreview()` — the filter is attached in `attachOverlayFilter()` which is called inside `startPreview()`.
+Wraps RootEncoder's `GenericStream` (v2.7.2 API) with `Camera2Source` and `MicrophoneSource`. The camera feed runs through an OpenGL pipeline (a standard `SurfaceView` whose GL context is managed internally by RootEncoder) that applies an `ObjectFilterRender` as a full-frame overlay. Preview lifecycle is driven by `SurfaceHolder.Callback` registered in `StreamManager.init` — there are no explicit `startPreview()`/`stopPreview()` calls from outside. Encoders are prepared once at construction; `startStream(url)` just starts the stream. The `ConnectChecker` interface (from `com.pedro.common`) replaces the old `ConnectCheckerRtmp`.
 
 **2. Overlay rendering** (`overlay/ScoreOverlayRenderer.kt`)  
 Owns a single reusable `Bitmap` (1280×720 ARGB) and a `Canvas` backed by it. Each call to `render()` clears the bitmap and redraws the score bar at the top of the frame. The bitmap is passed to `ObjectFilterRender.setImage()` in `StreamManager.updateOverlay()`. The overlay is burned into the encoded video — it is not a separate UI layer.
